@@ -29,16 +29,15 @@ public class DatabaseReader extends HttpServlet {
 			try {
 				if ("mysql".equals(dbtype)) {
 					conn = getMySqlConnection(url, user, pass);
-					HttpSession sessioninfo = request.getSession();
-					sessioninfo.setAttribute("dbtype", dbtype);
-					sessioninfo.setAttribute("url", url);
-					sessioninfo.setAttribute("user", user);
-					sessioninfo.setAttribute("pass", pass);
-					sessioninfo.setAttribute("schema", schemaname);
-					System.out.println("Got Connection");
-				} else {
-
+				} else if("pgsql".equals(dbtype)) {
+					conn = getPostGreSQLConnection(url, user, pass);
 				}
+				HttpSession sessioninfo = request.getSession();
+				sessioninfo.setAttribute("dbtype", dbtype);
+				sessioninfo.setAttribute("url", url);
+				sessioninfo.setAttribute("user", user);
+				sessioninfo.setAttribute("pass", pass);
+				sessioninfo.setAttribute("schema", schemaname);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				response.getOutputStream().println("Unable to connect to the database" + e.getMessage());
@@ -99,14 +98,9 @@ public class DatabaseReader extends HttpServlet {
 		return conn;
 	}
 
-	public static Connection getOracleConnection() throws Exception {
-		String driver = "oracle.jdbc.driver.OracleDriver";
-		String url = "jdbc:oracle:thin:@localhost:1521:caspian";
-		String username = "mp";
-		String password = "mp2";
-
-		Class.forName(driver); // load Oracle driver
-		Connection conn = DriverManager.getConnection(url, username, password);
+	public static Connection getPostGreSQLConnection(String url, String user, String pass) throws Exception {
+		Class.forName("org.postgresql.Driver");
+		Connection conn = DriverManager.getConnection(url, user, pass);
 		return conn;
 	}
 

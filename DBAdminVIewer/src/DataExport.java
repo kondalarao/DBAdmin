@@ -30,13 +30,19 @@ public class DataExport extends HttpServlet {
 			
 			Connection connect = null;
 			try {
-				if ("mysql".equals(sessionInfo.getAttribute("dbtype").toString())) {
-					connect = getMySqlConnection(sessionInfo.getAttribute("url").toString(),
-							sessionInfo.getAttribute("user").toString(), sessionInfo.getAttribute("pass").toString());
+				String dbtype = sessionInfo.getAttribute("dbtype").toString();
+				String url = sessionInfo.getAttribute("url").toString();
+				String user = sessionInfo.getAttribute("user").toString();
+				String pass = sessionInfo.getAttribute("pass").toString();
+				if ("mysql".equals(dbtype)) {
+					connect = getMySqlConnection(url,
+							user, pass);
 
-				} else {
-					/*Other DB implementation here*/
-				}
+				} else if ("pgsql".equals(dbtype)) {
+					connect = getPostGreSQLConnection(url,
+							user, pass);
+
+				} 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				response.getOutputStream().println("Unable to connect to the database" + e.getMessage());
@@ -51,7 +57,8 @@ public class DataExport extends HttpServlet {
 			while (rstables.next()) {
 
 				String tablename = rstables.getString("TABLE_NAME");
-				XSSFSheet spreadsheet = workbook.createSheet(tablename);
+				String sheetname = tablename.length() > 30 ? tablename.substring(0, 29) : tablename;
+				XSSFSheet spreadsheet = workbook.createSheet(sheetname);
 				XSSFRow row = spreadsheet.createRow(0);
 				XSSFCell cell;
 				ResultSet rscolumns = connect.getMetaData().getColumns(null, null, tablename, null);
@@ -117,17 +124,19 @@ public class DataExport extends HttpServlet {
 			response.flushBuffer();
 
 		} catch (Exception e) {
-			// TODO: handle exception
+			System.out.println("Unable to export the masked data : " + e.getMessage());
+			e.printStackTrace();
 		}
 
 	}
 	
 	public static Connection getMySqlConnection(String url, String user, String pass) throws Exception {
 		Class.forName("com.mysql.jdbc.Driver");
-		// String url = "jdbc:mysql://localhost:3306/sample";
-		// String username = "root";
-		// String password = "admin";
-
+		Connection conn = DriverManager.getConnection(url, user, pass);
+		return conn;
+	}
+	public static Connection getPostGreSQLConnection(String url, String user, String pass) throws Exception {
+		Class.forName("org.postgresql.Driver");
 		Connection conn = DriverManager.getConnection(url, user, pass);
 		return conn;
 	}
