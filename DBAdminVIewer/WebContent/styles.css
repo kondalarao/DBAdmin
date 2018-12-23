@@ -9,10 +9,10 @@ h1 {
     text-align : center;
     font-family: "SIMPSON";
 }
-form {
+.form {
     width: 700px;
     margin: 0 auto;
-    border:#0F7BB8 2px;
+   
         }
 .input{
 	width: 100%;
@@ -43,6 +43,7 @@ select{
  }
  .container ul li{
    display: inline-block; 
+   height:50px;
 }
  .left{
      float:left;
@@ -62,13 +63,38 @@ select{
     float:left;
     margin-left:200px;
     margin-top:50px;
+    cursor:pointer;
    }
- table,table tr {
-     border: 0;
+  .button1{
+	background: #f47920;
+   color: white;   
+    padding: 10px;
+    border: 1px solid #e3e3e3;
+    font-size: 14px !important;
+    float:right;
+    margin-right:200px;
+    margin-bottom:20px;
+    cursor:pointer;
+   }
+ 
+ table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top:40px;
 }
- table th {
-     background: #becedf;
+
+th, td {
+  text-align: left;
+  padding: 8px;
 }
- table tr:nth-child(2n+1) {
-     background: #f9f9f9;
+th{text-align:center ! important;}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+thead tr {
+  background-color: #4CAF50;
+  color: white;
+}
+.table_toggle:hover{
+	cursor:pointer;
 }

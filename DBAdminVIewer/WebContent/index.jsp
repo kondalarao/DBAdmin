@@ -11,7 +11,7 @@
 <body>
 <div class="container">
 	<h1>Database Administrator Portal</h1>
-	<form method="post" action="DatabaseReader">
+	<form method="post" action="DatabaseReader" class="form">
 	<ul>
 	<li>
 		<span class="left">Choose Database : </span>
