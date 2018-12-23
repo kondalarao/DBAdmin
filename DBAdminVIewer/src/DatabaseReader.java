@@ -23,6 +23,7 @@ public class DatabaseReader extends HttpServlet {
 			String user = request.getParameter("user");
 			String pass = request.getParameter("pass");
 			String dbtype = request.getParameter("dbtype");
+			String schemaname = url.substring(url.lastIndexOf('/')+1);
 
 			Connection conn = null;
 			try {
@@ -33,6 +34,7 @@ public class DatabaseReader extends HttpServlet {
 					sessioninfo.setAttribute("url", url);
 					sessioninfo.setAttribute("user", user);
 					sessioninfo.setAttribute("pass", pass);
+					sessioninfo.setAttribute("schema", schemaname);
 					System.out.println("Got Connection");
 				} else {
 
@@ -52,11 +54,10 @@ public class DatabaseReader extends HttpServlet {
 
 			DatabaseMetaData meta = conn.getMetaData();
 			String table[] = { "TABLE" };
-			ResultSet rstables = null;
 			ResultSet rscolumns = null;
 			String columnName;
-			String schemaname = url.substring(url.lastIndexOf('/')+1);
-			rstables = meta.getTables(schemaname, null, "%", table);
+			
+			ResultSet rstables = meta.getTables(schemaname, null, "%", table);
 			while (rstables.next()) {
 
 				String tableName = rstables.getString("TABLE_NAME");
@@ -77,11 +78,9 @@ public class DatabaseReader extends HttpServlet {
 				}
 
 				out.println("</table>");
-				out.println("<input type='hidden' name='tablename' value='"+tableName+"'/><input type=\"submit\" value=\"Mask and Export\"></form>");
-
 			}
 			
-			out.println("</body></html>");
+			out.println("<input type=\"submit\" value=\"Mask and Export\"></form></body></html>");
 
 			conn.close();
 		} catch (Exception e) {

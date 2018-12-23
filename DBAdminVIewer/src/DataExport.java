@@ -1,6 +1,7 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -26,55 +27,58 @@ public class DataExport extends HttpServlet {
 
 			Class.forName("com.mysql.jdbc.Driver");
 			HttpSession sessionInfo = request.getSession();
-			String tablename = request.getParameter("tablename");
-			System.out.println(tablename);
 			Connection connect = DriverManager.getConnection(sessionInfo.getAttribute("url").toString(),
 					sessionInfo.getAttribute("user").toString(), sessionInfo.getAttribute("pass").toString());
-
+			DatabaseMetaData meta = connect.getMetaData();
+			String table[] = { "TABLE" };
+			ResultSet rstables = meta.getTables(sessionInfo.getAttribute("schema").toString(), null, "%", table);
 			XSSFWorkbook workbook = new XSSFWorkbook();
-			XSSFSheet spreadsheet = workbook.createSheet("data");
 
-			XSSFRow row = spreadsheet.createRow(0);
-			XSSFCell cell;
-			ResultSet rscolumns = connect.getMetaData().getColumns(null, null, tablename, null);
-			ArrayList<String> columns = new ArrayList();
-			int columnnum = 0;
-			String columnname;
-			String query = "select ";
+			while (rstables.next()) {
 
-			while (rscolumns.next()) {
-				cell = row.createCell(columnnum);
-				columnname= rscolumns.getString("COLUMN_NAME");
-				cell.setCellValue(columnname);
-				columns.add(columnname);
-				if ("on".equals(request.getParameter(columnname)))
-				{
-					query = query + "shuffle("+columnname+ ") as "+columnname+",";
-				}else
-				{
-					query = query + columnname+ ",";
+				String tablename = rstables.getString("TABLE_NAME");
+				XSSFSheet spreadsheet = workbook.createSheet(tablename);
+				XSSFRow row = spreadsheet.createRow(0);
+				XSSFCell cell;
+				ResultSet rscolumns = connect.getMetaData().getColumns(null, null, tablename, null);
+				ArrayList<String> columns = new ArrayList();
+				int columnnum = 0;
+				String columnname;
+				String query = "select ";
+
+				while (rscolumns.next()) {
+					cell = row.createCell(columnnum);
+					columnname = rscolumns.getString("COLUMN_NAME");
+					cell.setCellValue(columnname);
+					columns.add(columnname);
+					if ("on".equals(request.getParameter(columnname))) {
+						query = query + "shuffle(" + columnname + ") as " + columnname + ",";
+					} else {
+						query = query + columnname + ",";
+					}
+					columnnum++;
 				}
-				columnnum++;
-			}
-			query = query.substring(0, query.length()-1);
-			query = query + " from " + tablename;
-			
-			int rownum = 1;
-			Statement statement = connect.createStatement();
-			ResultSet resultSet = statement.executeQuery(query);
-			System.out.println(query);
+				query = query.substring(0, query.length() - 1);
+				query = query + " from " + tablename;
 
-			while (resultSet.next()) {
+				int rownum = 1;
+				Statement statement = connect.createStatement();
+				ResultSet resultSet = statement.executeQuery(query);
+				System.out.println(query);
 
-				int columnum = 0;
-				row = spreadsheet.createRow(rownum);
-				Iterator<String> columnItr = columns.iterator();
-				while (columnItr.hasNext()) {
-					cell = row.createCell(columnum);
-					cell.setCellValue(resultSet.getString(columnItr.next()));
-					columnum++;
+				while (resultSet.next()) {
+
+					int columnum = 0;
+					row = spreadsheet.createRow(rownum);
+					Iterator<String> columnItr = columns.iterator();
+					while (columnItr.hasNext()) {
+						cell = row.createCell(columnum);
+						cell.setCellValue(resultSet.getString(columnItr.next()));
+						columnum++;
+					}
+					rownum++;
 				}
-				rownum++;
+
 			}
 
 			// FileOutputStream out = new FileOutputStream(new
@@ -89,7 +93,7 @@ public class DataExport extends HttpServlet {
 			byte[] file = fileOutput.toByteArray();
 
 			response.setContentLength(file.length);
-			response.setHeader("Content-Disposition", "attachment;filename='exceldatabase1.xlsx'");
+			response.setHeader("Content-Disposition", "attachment;filename='data.xlsx'");
 			response.setHeader("charset", "iso-8859-1");
 			response.setContentType("application/octet-stream");
 			outputStream.write(file, 0, file.length);
