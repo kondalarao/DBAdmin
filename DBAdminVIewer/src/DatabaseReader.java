@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @SuppressWarnings("serial")
 public class DatabaseReader extends HttpServlet {
@@ -27,6 +28,11 @@ public class DatabaseReader extends HttpServlet {
 			try {
 				if ("mysql".equals(dbtype)) {
 					conn = getMySqlConnection(url, user, pass);
+					HttpSession sessioninfo = request.getSession();
+					sessioninfo.setAttribute("dbtype", dbtype);
+					sessioninfo.setAttribute("url", url);
+					sessioninfo.setAttribute("user", user);
+					sessioninfo.setAttribute("pass", pass);
 					System.out.println("Got Connection");
 				} else {
 
@@ -42,33 +48,34 @@ public class DatabaseReader extends HttpServlet {
 					"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\"http://www.w3.org/TR/html4/loose.dtd\">\n"
 							+ "<html> \n" + "<head> \n"
 							+ "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\"> \n"
-							+ "<title> My first jsp  </title> \n" + "</head> \n" + "<body> \n"
-							+ "<table border=\"2\">\r\n" + "<tr>\r\n" + "<td>COLUMN_NAME</td>\r\n"
-							+ "<td>TYPE_NAME</td>\r\n" + "<td>COLUMN_NAME</td>\r\n" + "</tr>");
+							+ "<title> Database Administrator Portal  </title> \n" + "</head> \n" + "<body><h3>List of Database Tables</h3> \n");
 
 			DatabaseMetaData meta = conn.getMetaData();
 			String table[] = { "TABLE" };
-			ResultSet rs = null;
+			ResultSet rstables = null;
+			ResultSet rscolumns = null;
+			String schemaname = url.substring(url.lastIndexOf('/')+1);
+			rstables = meta.getTables(schemaname, null, "%", table);
+			while (rstables.next()) {
 
-			rs = meta.getTables(conn.getSchema(), null, "%", table);
+				String tableName = rstables.getString("TABLE_NAME");
+				rscolumns = meta.getColumns(null, null, tableName, null);
+				out.println("<br><br>TABLE NAME : " + tableName.toUpperCase());
+				out.println("<table border=\"1\">\r\n" + "<tr>\r\n" + "<td>COLUMN_NAME</td>\r\n"
+							+ "<td>TYPE_NAME</td>\r\n" + "<td>COLUMN_NAME</td>\r\n" + "</tr>");
+				while (rscolumns.next()) {
 
-			while (rs.next()) {
-
-				String tableName = rs.getString("TABLE_NAME");
-				rs = meta.getColumns(null, null, tableName, null);
-				out.println("Table Name : " + tableName.toUpperCase());
-				while (rs.next()) {
-
-					out.println("<tr><td>" + rs.getString("COLUMN_NAME") + "</td>");
-					out.println("<td>" + rs.getString("TYPE_NAME") + "</td>");
-					out.println("<td>" + rs.getString("COLUMN_SIZE") + "</td></tr>");
+					out.println("<tr><td>" + rscolumns.getString("COLUMN_NAME").toUpperCase() + "</td>");
+					out.println("<td>" + rscolumns.getString("TYPE_NAME").toUpperCase()+ "</td>");
+					out.println("<td>" + rscolumns.getString("COLUMN_SIZE").toUpperCase() + "</td></tr>");
 				}
 
 				out.println("</table>");
-				out.println("<form action=\"DataExport\">" + "<input type=\"submit\" value=\"Export\">" + "</body>"
-						+ "</html>");
+				out.println("<form action=\"DataExport\">" + "<input type='hidden' name='tablename' value='"+tableName+"'/><input type=\"submit\" value=\"Mask and Export\"></form>");
 
 			}
+			
+			out.println("</body></html>");
 
 			conn.close();
 		} catch (Exception e) {
