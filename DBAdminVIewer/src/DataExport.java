@@ -20,7 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class DataExport extends HttpServlet {
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
 
@@ -39,16 +39,30 @@ public class DataExport extends HttpServlet {
 			ResultSet rscolumns = connect.getMetaData().getColumns(null, null, tablename, null);
 			ArrayList<String> columns = new ArrayList();
 			int columnnum = 0;
+			String columnname;
+			String query = "select ";
+
 			while (rscolumns.next()) {
 				cell = row.createCell(columnnum);
-				cell.setCellValue(rscolumns.getString("COLUMN_NAME"));
-				columns.add(rscolumns.getString("COLUMN_NAME"));
+				columnname= rscolumns.getString("COLUMN_NAME");
+				cell.setCellValue(columnname);
+				columns.add(columnname);
+				if ("on".equals(request.getParameter(columnname)))
+				{
+					query = query + "shuffle("+columnname+ ") as "+columnname+",";
+				}else
+				{
+					query = query + columnname+ ",";
+				}
 				columnnum++;
 			}
-
+			query = query.substring(0, query.length()-1);
+			query = query + " from " + tablename;
+			
 			int rownum = 1;
 			Statement statement = connect.createStatement();
-			ResultSet resultSet = statement.executeQuery("select * from " + tablename);
+			ResultSet resultSet = statement.executeQuery(query);
+			System.out.println(query);
 
 			while (resultSet.next()) {
 

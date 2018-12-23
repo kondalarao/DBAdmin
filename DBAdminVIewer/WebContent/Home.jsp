@@ -8,7 +8,7 @@
 <title>My first JSP</title>
 </head>
 <body>
-	<form action="DatabaseReader">
+	<form method="post" action="DatabaseReader">
 		<center>
 			<br>Choose Database : <select name="dbtype">
 				<option value="mysql">MySQL</option>

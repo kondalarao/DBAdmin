@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 public class DatabaseReader extends HttpServlet {
 
 	@SuppressWarnings("resource")
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		try {
@@ -54,24 +54,30 @@ public class DatabaseReader extends HttpServlet {
 			String table[] = { "TABLE" };
 			ResultSet rstables = null;
 			ResultSet rscolumns = null;
+			String columnName;
 			String schemaname = url.substring(url.lastIndexOf('/')+1);
 			rstables = meta.getTables(schemaname, null, "%", table);
 			while (rstables.next()) {
 
 				String tableName = rstables.getString("TABLE_NAME");
 				rscolumns = meta.getColumns(null, null, tableName, null);
-				out.println("<br><br>TABLE NAME : " + tableName.toUpperCase());
+				out.println("<br>TABLE NAME : " + tableName.toUpperCase());
+				out.println("<form action=\"DataExport\" method='post'>");
 				out.println("<table border=\"1\">\r\n" + "<tr>\r\n" + "<td>COLUMN_NAME</td>\r\n"
-							+ "<td>TYPE_NAME</td>\r\n" + "<td>COLUMN_NAME</td>\r\n" + "</tr>");
+							+ "<td>TYPE_NAME</td>\r\n" + "<td>COLUMN_NAME</td>\r\n");
+				out.println("<td>MASK?</td></tr>");
 				while (rscolumns.next()) {
 
-					out.println("<tr><td>" + rscolumns.getString("COLUMN_NAME").toUpperCase() + "</td>");
+					columnName = rscolumns.getString("COLUMN_NAME");
+					out.println("<tr><td>" + columnName.toUpperCase() + "</td>");
 					out.println("<td>" + rscolumns.getString("TYPE_NAME").toUpperCase()+ "</td>");
-					out.println("<td>" + rscolumns.getString("COLUMN_SIZE").toUpperCase() + "</td></tr>");
+					out.println("<td>" + rscolumns.getString("COLUMN_SIZE").toUpperCase() + "</td>"
+							+ "<td><input type='checkbox' name='"+columnName+"'/>"
+							+ "</td></tr>");
 				}
 
 				out.println("</table>");
-				out.println("<form action=\"DataExport\">" + "<input type='hidden' name='tablename' value='"+tableName+"'/><input type=\"submit\" value=\"Mask and Export\"></form>");
+				out.println("<input type='hidden' name='tablename' value='"+tableName+"'/><input type=\"submit\" value=\"Mask and Export\"></form>");
 
 			}
 			
