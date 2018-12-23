@@ -49,7 +49,8 @@ public class DatabaseReader extends HttpServlet {
 					"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\"http://www.w3.org/TR/html4/loose.dtd\">\n"
 							+ "<html> \n" + "<head> \n"
 							+ "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\"> \n"
-							+ "<title> Database Administrator Portal  </title> \n" + "</head> \n" + "<body><h3>List of Database Tables</h3> \n");
+							+ "<title> Database Administrator Portal  </title> \n" 
+							+ "<link href=\"styles.css\" rel=\"stylesheet\" /></head> \n" + "<body><h3>List of Database Tables</h3> \n");
 
 			DatabaseMetaData meta = conn.getMetaData();
 			String table[] = { "TABLE" };

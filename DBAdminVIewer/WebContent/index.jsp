@@ -5,20 +5,39 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Database Admin Login</title>
+ <link href="styles.css" rel="stylesheet" />
+<title>Database Administrator Login</title>
 </head>
 <body>
+<div class="container">
+	<h1>Database Administrator Portal</h1>
 	<form method="post" action="DatabaseReader">
-		<center>
-			<br>Choose Database : <select name="dbtype">
-				<option value="mysql">MySQL</option>
-				<option value="pgsql">Postgres SQL</option>
-			</select> <br> <br>Connection URL : <input type="text"
-				name="connectionstring" size="20px" required> <br> <br>User
-			Name : <input type="text" name="user" size="20px" required> <br>
-			<br>Password : <input type="password" name="pass" size="20px"
-				required> <br><br><input type="submit" value="Connect">
-		</center>
+	<ul>
+	<li>
+		<span class="left">Choose Database : </span>
+	    <span class="right">
+		    <select name="dbtype">
+					<option value="mysql">MySQL</option>
+					<option value="pgsql">Postgres SQL</option>
+			</select>
+		</span>
+	</li>
+	<li>
+		<span class="left">Connection URL : </span>
+		<span class="right"><input type="text"	name="connectionstring" class="input" required ></span>
+	</li>
+	<li>
+		<span class="left">User	Name : </span>
+		<span class="right"><input type="text" name="user" class="input" required > </span>
+	</li>
+	<li>
+		<span class="left">Password : </span>
+		<span class="right"><input type="password" name="pass" class="input" required ></span>
+	</li></ul>
+			<input type="submit" value="Connect" class="button" />
+		
+		
 	</form>
-</body>
+	</div>
+	</body>
 </html>
