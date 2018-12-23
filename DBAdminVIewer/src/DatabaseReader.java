@@ -80,7 +80,7 @@ public class DatabaseReader extends HttpServlet {
 				out.println("</table>");
 			}
 			
-			out.println("<input type=\"submit\" value=\"Mask and Export\"></form></body></html>");
+			out.println("<br><input type=\"submit\" value=\"Mask and Export\"></form></body></html>");
 
 			conn.close();
 		} catch (Exception e) {

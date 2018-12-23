@@ -27,8 +27,22 @@ public class DataExport extends HttpServlet {
 
 			Class.forName("com.mysql.jdbc.Driver");
 			HttpSession sessionInfo = request.getSession();
-			Connection connect = DriverManager.getConnection(sessionInfo.getAttribute("url").toString(),
-					sessionInfo.getAttribute("user").toString(), sessionInfo.getAttribute("pass").toString());
+			
+			Connection connect = null;
+			try {
+				if ("mysql".equals(sessionInfo.getAttribute("dbtype").toString())) {
+					connect = getMySqlConnection(sessionInfo.getAttribute("url").toString(),
+							sessionInfo.getAttribute("user").toString(), sessionInfo.getAttribute("pass").toString());
+
+				} else {
+					/*Other DB implementation here*/
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				response.getOutputStream().println("Unable to connect to the database" + e.getMessage());
+				e.printStackTrace();
+			}
+			
 			DatabaseMetaData meta = connect.getMetaData();
 			String table[] = { "TABLE" };
 			ResultSet rstables = meta.getTables(sessionInfo.getAttribute("schema").toString(), null, "%", table);
@@ -52,7 +66,7 @@ public class DataExport extends HttpServlet {
 					cell.setCellValue(columnname);
 					columns.add(columnname);
 					if ("on".equals(request.getParameter(columnname))) {
-						query = query + "shuffle(" + columnname + ") as " + columnname + ",";
+						query = query + "kondal_mask(" + columnname + ") as " + columnname + ",";
 					} else {
 						query = query + columnname + ",";
 					}
@@ -64,7 +78,6 @@ public class DataExport extends HttpServlet {
 				int rownum = 1;
 				Statement statement = connect.createStatement();
 				ResultSet resultSet = statement.executeQuery(query);
-				System.out.println(query);
 
 				while (resultSet.next()) {
 
@@ -107,5 +120,15 @@ public class DataExport extends HttpServlet {
 			// TODO: handle exception
 		}
 
+	}
+	
+	public static Connection getMySqlConnection(String url, String user, String pass) throws Exception {
+		Class.forName("com.mysql.jdbc.Driver");
+		// String url = "jdbc:mysql://localhost:3306/sample";
+		// String username = "root";
+		// String password = "admin";
+
+		Connection conn = DriverManager.getConnection(url, user, pass);
+		return conn;
 	}
 }
